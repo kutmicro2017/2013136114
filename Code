@@ -1,0 +1,134 @@
+#define R1 14
+#define Y1 15
+#define G1 16  //1번 신호등
+#define R2 54
+#define Y2 57
+#define G2 61 //2번
+#define R3 19
+#define Y3 20
+#define G3 21 //3번
+#define R4 11
+#define Y4 10
+#define G4 9 //4번
+
+#define TimeY 5 // sec단위로 적고
+#define TimeG 10000 //sec*1000 해서 적기
+#define TimeS 3000
+
+#define buttonA 2
+
+int bstate = 0; // <보행자신호> 0 = 아무것도 안눌림 1 = 1번 라인일때 2 = 2번 라인일때
+int sstate = 0; //  <상하 // 좌우> 신호 구분
+
+
+void delay_a(int sec);
+bool bCheck();
+
+void setup() {
+  pinMode(R1, OUTPUT);
+  pinMode(Y1, OUTPUT);
+  pinMode(G1, OUTPUT);
+  pinMode(R2, OUTPUT);
+  pinMode(Y2, OUTPUT);
+  pinMode(G2, OUTPUT);
+  pinMode(R3, OUTPUT);
+  pinMode(Y3, OUTPUT);
+  pinMode(G3, OUTPUT);
+  pinMode(R4, OUTPUT);
+  pinMode(Y4, OUTPUT);
+  pinMode(G4, OUTPUT);
+  pinMode(buttonA, INPUT_PULLUP); //기본값이 HIGH
+}
+
+void loop() {
+  sstate = 1; // 1번라인
+  digitalWrite(R3, HIGH);
+  digitalWrite(R4, HIGH);
+  digitalWrite(R1, LOW);
+  digitalWrite(R2, LOW);
+  digitalWrite(G1, HIGH);
+  digitalWrite(G2, HIGH);
+  delay_a(TimeG);
+  digitalWrite(G1, LOW);
+  digitalWrite(G2, LOW);
+  if(bstate == 0){      //보행자 신호를 입력 받았을 경우
+    for(int i = 0; i<TimeY; i++){
+      digitalWrite(Y1, HIGH);
+      digitalWrite(Y2, HIGH);
+     delay_a(500);
+     digitalWrite(Y1, LOW);
+     digitalWrite(Y2, LOW);
+     delay_a(500);
+   }
+  }else if(bstate == 1){    //보행자 신호를 입력 받지않았을 경우
+    for(int i = 0; i<3; i++){
+      digitalWrite(Y1, HIGH);
+      digitalWrite(Y2, HIGH);
+     delay_a(500);
+     digitalWrite(Y1, LOW);
+     digitalWrite(Y2, LOW);
+     delay_a(500);
+   }
+   bstate = 0;
+  }
+  digitalWrite(R1, HIGH);
+  digitalWrite(R2, HIGH);
+  //전환
+  sstate = 2; // 2번라인
+  digitalWrite(R3, LOW);
+  digitalWrite(R4, LOW);
+  digitalWrite(G3, HIGH);
+  digitalWrite(G4, HIGH);
+  delay_a(TimeG);
+  digitalWrite(G3, LOW);
+  digitalWrite(G4, LOW);
+  
+  if(bstate == 0){
+   for(int i = 0; i<TimeY; i++){     //즉 i 하나에 1초
+     digitalWrite(Y3, HIGH);
+     digitalWrite(Y4, HIGH);
+      delay_a(500);
+      digitalWrite(Y3, LOW);
+     digitalWrite(Y4, LOW);
+     delay_a(500);
+    }
+   }else if(bstate == 2){
+    for(int i = 0; i<3; i++){
+     digitalWrite(Y3, HIGH);
+     digitalWrite(Y4, HIGH);
+      delay_a(500);
+      digitalWrite(Y3, LOW);
+     digitalWrite(Y4, LOW);
+     delay_a(500);
+    }
+   bstate = 0;
+   }
+}
+void delay_a(int sec){
+  for(int i = sec / 50 ; i>0 ; i--){
+    delay(50);
+    if(bstate == 0){    //스위치 입력이 안 들어와 있는 경우 스위치 입력 들어왔는지 검사
+      bool a = bCheck();    //입력이 있다면 true 값 반환 후 -> a
+     if(a == true){         
+        return;
+     }
+   }
+  }
+}
+
+
+bool bCheck(){
+  int a = digitalRead(buttonA);
+
+  if(a == LOW){         //스위치 입력 받았을 경우
+    if(sstate == 1){    //1번 라인 실행중일 경우
+      bstate = 1;
+      delay(TimeS);
+     return true;
+    }/*else if(sstate == 2){  //2번 라인 실행중일 경우
+      bstate = 2;
+      return true;
+    }*/
+  }
+  return false;
+}
