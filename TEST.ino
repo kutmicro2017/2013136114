@@ -210,7 +210,7 @@ void loop() {
   digitalWrite(G2, HIGH);
   delay_a(TimeG);
   if(bstate == 2){                  //버튼이 눌러진 상태일경우
-    numberd = 13;                   //돌아가는 딜레이네
+    numberd = 10;                   //돌아가는 딜레이네
     delay_a(TimeG);                 //이게 리셋이구나
   }
   digitalWrite(G2, LOW);
